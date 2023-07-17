@@ -8,14 +8,9 @@ router.get('/', function(req, res, next) {
   res.sendFile(filePath);
 });
 
-router.get('/login.css', function(req, res, next) {
-  var cssPath = path.resolve(__dirname, '../routes/stylesheets/login.css');
-  res.sendFile(cssPath);
-});
-
-router.get('/login.js', function(req, res, next) {
-  var cssPath = path.resolve(__dirname, '../routes/js/login.js');
-  res.sendFile(cssPath);
-});
+var routesPath = path.join(__dirname, '../routes');
+var publicPath = path.join(__dirname, '../public');
+router.use(express.static(routesPath));
+router.use(express.static(publicPath));
 
 module.exports = router;
