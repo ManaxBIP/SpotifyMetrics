@@ -3,11 +3,17 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const axios = require('axios');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+
+const clientId = '71d32f8a935a45c195b995d4ee47e15b';
+const clientSecret = 'cfb092f7f25b48b9be4cfe3c762ed05a';
+const redirectUri = 'http://127.0.0.1:3000/callback';
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -18,6 +24,82 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/login', (req, res) => {
+  //const scopes = 'user-read-private user-read-email'; // Les autorisations que vous souhaitez obtenir de l'utilisateur
+  const scopes = 'user-read-private user-read-email user-library-read playlist-read-private playlist-read-collaborative user-follow-read user-top-read user-read-recently-played user-read-playback-state user-modify-playback-state';
+
+  // Rediriger l'utilisateur vers la page de connexion Spotify
+  res.redirect(`https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${encodeURIComponent(scopes)}`);
+});
+
+app.get('/callback', async (req, res) => {
+  const code = req.query.code;
+
+  // Échanger le code d'autorisation pour un jeton d'accès
+  try {
+    const response = await axios.post('https://accounts.spotify.com/api/token',
+        `grant_type=authorization_code&code=${code}&redirect_uri=${encodeURIComponent(redirectUri)}`, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`
+          }
+        });
+
+    const accessToken = response.data.access_token;
+    const refreshToken = response.data.refresh_token;
+
+    // Vous pouvez maintenant utiliser l'accessToken pour faire des appels à l'API Spotify au nom de l'utilisateur connecté
+    // Par exemple, récupérer les informations du profil de l'utilisateur
+    const userResponse = await axios.get('https://api.spotify.com/v1/me', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    const userData = userResponse.data;
+    console.log(userData);
+
+    const topTracksResponse = await axios.get('https://api.spotify.com/v1/me/top/tracks', {
+      params: {
+        limit: 5,
+        time_range: 'medium_term',
+      },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const topTracksData = topTracksResponse.data;
+    const topTracksNames = topTracksData.items.map((track) => track.name);
+    console.log('Top 5 Tracks:', topTracksNames);
+
+    const topArtistsResponse = await axios.get('https://api.spotify.com/v1/me/top/artists', {
+      params: {
+        limit: 5,
+        time_range: 'medium_term',
+      },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const topArtistsData = topArtistsResponse.data;
+    const topArtistsNames = topArtistsData.items.map((artist) => artist.name);
+    console.log('Top 5 Artists:', topArtistsNames);
+
+    // Rediriger l'utilisateur vers une page de succès ou faire autre chose ici
+    res.send('Connexion réussie !');
+
+  } catch (error) {
+    console.error('Erreur lors de l\'échange du code d\'autorisation pour le jeton d\'accès :', error.message);
+    console.error('Response data:', error.response.data);
+    console.error('Response status:', error.response.status);
+    res.status(500).send('Une erreur est survenue lors de la connexion.');
+  }
+});
+
+
+
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
