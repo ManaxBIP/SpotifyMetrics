@@ -10,6 +10,7 @@ router.get('/', function(req, res, next) {
 
 var routesPath = path.join(__dirname, '../routes');
 var publicPath = path.join(__dirname, '../public');
+
 router.use(express.static(routesPath));
 router.use(express.static(publicPath));
 
