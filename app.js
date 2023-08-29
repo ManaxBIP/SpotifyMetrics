@@ -31,6 +31,7 @@ app.get('/login', (req, res) => {
 
   // Rediriger l'utilisateur vers la page de connexion Spotify
   res.redirect(`https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${encodeURIComponent(scopes)}`);
+
 });
 
 app.get('/callback', async (req, res) => {
@@ -88,6 +89,7 @@ app.get('/callback', async (req, res) => {
 
     // Rediriger l'utilisateur vers une page de succès ou faire autre chose ici
     res.send('Connexion réussie !');
+    //res.redirect("/home");
 
   } catch (error) {
     console.error('Erreur lors de l\'échange du code d\'autorisation pour le jeton d\'accès :', error.message);
