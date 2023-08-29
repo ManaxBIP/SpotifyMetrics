@@ -13,6 +13,7 @@ var app = express();
 const clientId = '71d32f8a935a45c195b995d4ee47e15b';
 const clientSecret = 'cfb092f7f25b48b9be4cfe3c762ed05a';
 const redirectUri = 'http://127.0.0.1:3000/callback';
+let accessT = "";
 
 
 // view engine setup
@@ -38,6 +39,61 @@ app.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, 'routes', 'html', 'home.html'));
 });
 
+app.get('/get-new-releases', async (req, res) => {
+  try {
+
+    const userTopArtistsResponse = await axios.get(
+        'https://api.spotify.com/v1/me/top/artists',
+        {
+          headers: {
+            Authorization: `Bearer ${accessT}`,
+          },
+        }
+    );
+
+    const topArtists = userTopArtistsResponse.data.items;
+
+    let newReleases = [];
+
+    for (const artist of topArtists) {
+      const artistId = artist.id;
+      const artistName = artist.name;
+
+      const artistAlbumsResponse = await axios.get(
+          `https://api.spotify.com/v1/artists/${artistId}/albums`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessT}`,
+            },
+          }
+      );
+
+      const artistAlbums = artistAlbumsResponse.data.items;
+
+      const today = new Date().toISOString().slice(0, 10);
+      const lastWeek = new Date();
+      lastWeek.setDate(lastWeek.getDate() - 7);
+      const lastWeekFormatted = lastWeek.toISOString().slice(0, 10);
+
+      for (const album of artistAlbums) {
+        const releaseDate = album.release_date;
+        if (releaseDate >= lastWeekFormatted && releaseDate <= today) {
+          newReleases.push({
+            artist: artistName,
+            album: album.name,
+            release_date: releaseDate,
+          });
+        }
+      }
+    }
+
+    res.json(newReleases);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Une erreur s\'est produite.' });
+  }
+});
+
 
 app.get('/callback', async (req, res) => {
   const code = req.query.code;
@@ -53,6 +109,7 @@ app.get('/callback', async (req, res) => {
         });
 
     const accessToken = response.data.access_token;
+    accessT = accessToken;
     const refreshToken = response.data.refresh_token;
 
     // Vous pouvez maintenant utiliser l'accessToken pour faire des appels à l'API Spotify au nom de l'utilisateur connecté

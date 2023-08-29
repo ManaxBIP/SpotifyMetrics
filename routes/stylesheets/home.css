@@ -1,0 +1,22 @@
+@font-face {
+    font-family: "Gotham Bold";
+    src: url("/src/fonts/Gotham-Bold.otf");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+html{
+    height: 100%;
+}
+body {
+    height: 100%;
+    min-height: 100%;
+    background-image: url("/src/img/background.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
