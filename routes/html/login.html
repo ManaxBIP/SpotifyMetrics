@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <title>SpotifyMetrics | Login</title>
     <link rel="stylesheet" type="text/css" href="/stylesheets/login.css">
-    <script src="/js/login.js"></script>
+    <script type="module" src="/js/login.js"></script>
     <script src="https://kit.fontawesome.com/5073b1e0bb.js" crossorigin="anonymous"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
 </head>
 <body>
 <div class="rideau"></div>
@@ -18,7 +18,7 @@
         <!--TODO: swipe card of visualisation of the app-->
     </main>
     <footer class="footer__login">
-        <button class="footer__login__button">Login to<img src="/src/logos/SpotifyLogo.png" alt="SpotifyLogo"></button>
+        <button id="footer__login__button" class="footer__login__button">Login to<img src="/src/logos/SpotifyLogo.png" alt="SpotifyLogo"></button>
     </footer>
 </body>
 </html>
