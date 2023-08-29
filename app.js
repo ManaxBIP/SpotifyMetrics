@@ -48,6 +48,9 @@ app.get('/get-new-releases', async (req, res) => {
           headers: {
             Authorization: `Bearer ${accessT}`,
           },
+          params: {
+            limit: 50, // Limite de 50 artistes
+          },
         }
     );
 
