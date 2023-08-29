@@ -34,6 +34,11 @@ app.get('/login', (req, res) => {
 
 });
 
+app.get('/home', (req, res) => {
+  res.sendFile(path.join(__dirname, 'routes', 'html', 'home.html'));
+});
+
+
 app.get('/callback', async (req, res) => {
   const code = req.query.code;
 
@@ -87,9 +92,7 @@ app.get('/callback', async (req, res) => {
     const topArtistsNames = topArtistsData.items.map((artist) => artist.name);
     console.log('Top 5 Artists:', topArtistsNames);
 
-    // Rediriger l'utilisateur vers une page de succès ou faire autre chose ici
-    res.send('Connexion réussie !');
-    //res.redirect("/home");
+    res.redirect("home");
 
   } catch (error) {
     console.error('Erreur lors de l\'échange du code d\'autorisation pour le jeton d\'accès :', error.message);
