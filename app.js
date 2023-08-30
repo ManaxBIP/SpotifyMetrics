@@ -14,6 +14,7 @@ const clientId = '71d32f8a935a45c195b995d4ee47e15b';
 const clientSecret = 'cfb092f7f25b48b9be4cfe3c762ed05a';
 const redirectUri = 'http://127.0.0.1:3000/callback';
 let accessT = "";
+let NewReleases = [];
 
 
 // view engine setup
@@ -41,7 +42,6 @@ app.get('/home', (req, res) => {
 
 app.get('/get-new-releases', async (req, res) => {
   try {
-
     const userTopArtistsResponse = await axios.get(
         'https://api.spotify.com/v1/me/top/artists',
         {
@@ -49,16 +49,19 @@ app.get('/get-new-releases', async (req, res) => {
             Authorization: `Bearer ${accessT}`,
           },
           params: {
-            limit: 50, // Limite de 50 artistes
+            limit: 50,
           },
         }
     );
 
     const topArtists = userTopArtistsResponse.data.items;
 
-    let newReleases = [];
+    const today = new Date().toISOString().slice(0, 10);
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    const lastWeekFormatted = lastWeek.toISOString().slice(0, 10);
 
-    for (const artist of topArtists) {
+    const newReleasesPromises = topArtists.map(async (artist) => {
       const artistId = artist.id;
       const artistName = artist.name;
 
@@ -73,29 +76,59 @@ app.get('/get-new-releases', async (req, res) => {
 
       const artistAlbums = artistAlbumsResponse.data.items;
 
-      const today = new Date().toISOString().slice(0, 10);
-      const lastWeek = new Date();
-      lastWeek.setDate(lastWeek.getDate() - 7);
-      const lastWeekFormatted = lastWeek.toISOString().slice(0, 10);
+      const newReleases = [];
 
       for (const album of artistAlbums) {
         const releaseDate = album.release_date;
         if (releaseDate >= lastWeekFormatted && releaseDate <= today) {
-          newReleases.push({
-            artist: artistName,
-            album: album.name,
-            release_date: releaseDate,
-          });
+          const albumId = album.id;
+          const albumName = album.name;
+
+          const albumTracksResponse = await axios.get(
+              `https://api.spotify.com/v1/albums/${albumId}/tracks`,
+              {
+                headers: {
+                  Authorization: `Bearer ${accessT}`,
+                },
+              }
+          );
+
+          const albumTracks = albumTracksResponse.data.items;
+
+          const featuringTracks = albumTracks.filter((track) =>
+              track.artists.some((artist) => artist.id === artistId)
+          );
+
+          for (const track of featuringTracks) {
+            const trackName = track.name;
+            const shouldDisplayAlbumName = trackName !== albumName;
+
+            newReleases.push({
+              artist: artistName,
+              track: trackName,
+              album_name: shouldDisplayAlbumName ? albumName : undefined,
+              release_date: releaseDate,
+              cover_url: album.images[0].url,
+            });
+          }
         }
       }
-    }
 
-    res.json(newReleases);
+      return newReleases;
+    });
+
+    const allNewReleases = await Promise.all(newReleasesPromises);
+    const flattenedReleases = allNewReleases.flat();
+
+    res.json(flattenedReleases);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Une erreur s\'est produite.' });
   }
 });
+
+
+
 
 
 app.get('/callback', async (req, res) => {
