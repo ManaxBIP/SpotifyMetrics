@@ -3,6 +3,11 @@
     src: url("/src/fonts/Gotham-Bold.otf");
 }
 
+@font-face {
+    font-family: "Gotham Light";
+    src: url("/src/fonts/Gotham-Light.otf");
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -19,4 +24,49 @@ body {
     background-image: url("/src/img/background.png");
     background-repeat: no-repeat;
     background-size: cover;
+}
+
+#new-releases-container{
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+    align-items: center;
+}
+
+.release-item{
+    background-color: #272525;
+    color: #ffffff;
+    width: 90vw;
+    height: 9vh;
+    display: flex;
+    border-radius: 20px;
+    justify-content: center;
+    font-family: "Gotham Bold", sans-serif;
+}
+
+.CoverDiv{
+    width: 25%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+}
+
+.TrackInfoDiv{
+    width: 75%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    overflow-x: hidden;
+    white-space: nowrap;
+    margin-right: 5%;
+}
+
+
+#track.animate-track {
+    animation-timing-function: linear;
+    display: inline-block;
+    transition: margin-left 1s ease; /* Spécifiez la durée et l'effet de transition souhaités */
+    margin-left: 0%;
 }

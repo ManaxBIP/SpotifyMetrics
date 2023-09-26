@@ -40,92 +40,109 @@ app.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, 'routes', 'html', 'home.html'));
 });
 
+const CACHE_DURATION = 3600 * 1000; // Cache pendant 1 heure (en millisecondes)
+
+let cachedReleases = null;
+let lastFetchTime = 0;
+
+
 app.get('/get-new-releases', async (req, res) => {
   try {
-    const userTopArtistsResponse = await axios.get(
-        'https://api.spotify.com/v1/me/top/artists',
-        {
-          headers: {
-            Authorization: `Bearer ${accessT}`,
-          },
-          params: {
-            limit: 50,
-          },
-        }
-    );
+    const currentTime = Date.now();
 
-    const topArtists = userTopArtistsResponse.data.items;
-
-    const today = new Date().toISOString().slice(0, 10);
-    const lastWeek = new Date();
-    lastWeek.setDate(lastWeek.getDate() - 7);
-    const lastWeekFormatted = lastWeek.toISOString().slice(0, 10);
-
-    const newReleasesPromises = topArtists.map(async (artist) => {
-      const artistId = artist.id;
-      const artistName = artist.name;
-
-      const artistAlbumsResponse = await axios.get(
-          `https://api.spotify.com/v1/artists/${artistId}/albums`,
+    // Vérifiez si les données sont en cache et si le cache a expiré
+    if (!cachedReleases || currentTime - lastFetchTime > CACHE_DURATION) {
+      const userTopArtistsResponse = await axios.get(
+          'https://api.spotify.com/v1/me/top/artists',
           {
             headers: {
               Authorization: `Bearer ${accessT}`,
             },
+            params: {
+              limit: 50,
+            },
           }
       );
 
-      const artistAlbums = artistAlbumsResponse.data.items;
+      const topArtists = userTopArtistsResponse.data.items;
 
-      const newReleases = [];
+      const today = new Date().toISOString().slice(0, 10);
+      const lastWeek = new Date();
+      lastWeek.setDate(lastWeek.getDate() - 7);
+      const lastWeekFormatted = lastWeek.toISOString().slice(0, 10);
 
-      for (const album of artistAlbums) {
-        const releaseDate = album.release_date;
-        if (releaseDate >= lastWeekFormatted && releaseDate <= today) {
-          const albumId = album.id;
-          const albumName = album.name;
+      const newReleasesPromises = topArtists.map(async (artist) => {
+        const artistId = artist.id;
+        const artistName = artist.name;
 
-          const albumTracksResponse = await axios.get(
-              `https://api.spotify.com/v1/albums/${albumId}/tracks`,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessT}`,
-                },
-              }
-          );
+        const artistAlbumsResponse = await axios.get(
+            `https://api.spotify.com/v1/artists/${artistId}/albums`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessT}`,
+              },
+            }
+        );
 
-          const albumTracks = albumTracksResponse.data.items;
+        const artistAlbums = artistAlbumsResponse.data.items;
 
-          const featuringTracks = albumTracks.filter((track) =>
-              track.artists.some((artist) => artist.id === artistId)
-          );
+        const newReleases = [];
 
-          for (const track of featuringTracks) {
-            const trackName = track.name;
-            const shouldDisplayAlbumName = trackName !== albumName;
+        for (const album of artistAlbums) {
+          const releaseDate = album.release_date;
+          if (releaseDate >= lastWeekFormatted && releaseDate <= today) {
+            const albumId = album.id;
+            const albumName = album.name;
 
-            newReleases.push({
-              artist: artistName,
-              track: trackName,
-              album_name: shouldDisplayAlbumName ? albumName : undefined,
-              release_date: releaseDate,
-              cover_url: album.images[0].url,
-            });
+            const albumTracksResponse = await axios.get(
+                `https://api.spotify.com/v1/albums/${albumId}/tracks`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${accessT}`,
+                  },
+                }
+            );
+
+            const albumTracks = albumTracksResponse.data.items;
+
+            const featuringTracks = albumTracks.filter((track) =>
+                track.artists.some((artist) => artist.id === artistId)
+            );
+
+            for (const track of featuringTracks) {
+              const trackName = track.name;
+              const shouldDisplayAlbumName = trackName !== albumName;
+
+              newReleases.push({
+                artist: artistName,
+                track: trackName,
+                album_name: shouldDisplayAlbumName ? albumName : undefined,
+                release_date: releaseDate,
+                cover_url: album.images[0].url,
+              });
+            }
           }
         }
-      }
 
-      return newReleases;
-    });
+        return newReleases;
+      });
 
-    const allNewReleases = await Promise.all(newReleasesPromises);
-    const flattenedReleases = allNewReleases.flat();
+      const allNewReleases = await Promise.all(newReleasesPromises);
+      const flattenedReleases = allNewReleases.flat();
 
-    res.json(flattenedReleases);
+      // Mettez en cache les nouvelles sorties
+      cachedReleases = flattenedReleases;
+      lastFetchTime = currentTime;
+    }
+
+    // Renvoyez les données mises en cache
+    res.json(cachedReleases);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Une erreur s\'est produite.' });
   }
 });
+
 
 
 
