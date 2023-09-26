@@ -40,6 +40,10 @@ app.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, 'routes', 'html', 'home2.html'));
 });
 
+app.get('/profile', (req, res) => {
+  res.sendFile(path.join(__dirname, 'routes', 'html', 'profile.html'));
+});
+
 const CACHE_DURATION = 3600 * 1000; // Cache pendant 1 heure (en millisecondes)
 
 let cachedReleases = null;
