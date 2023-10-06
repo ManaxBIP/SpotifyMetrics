@@ -9,9 +9,8 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
-
-const clientId = '71d32f8a935a45c195b995d4ee47e15b';
-const clientSecret = 'cfb092f7f25b48b9be4cfe3c762ed05a';
+const clientId = '5fb2c7aaa6644c7fb487926dc9ab8c19';//'71d32f8a935a45c195b995d4ee47e15b';
+const clientSecret = 'c3b9ed00c1414555aea6e56caf11e6a5';//'cfb092f7f25b48b9be4cfe3c762ed05a';
 const redirectUri = 'http://127.0.0.1:3000/callback';
 let accessT = "";
 let NewReleases = [];

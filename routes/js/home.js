@@ -3,8 +3,45 @@ fetch('/get-new-releases')
     .then(data => {
         const container = document.getElementById('new-releases-container');
 
-        // Parcourez les données et créez des éléments pour chaque nouvelle sortie
+        // Triez les données en fonction de la date de sortie (du plus récent au plus ancien)
+        data.sort((a, b) => {
+            const dateA = new Date(a.release_date);
+            const dateB = new Date(b.release_date);
+            return dateB - dateA;
+        });
+
+        // Créez un objet pour stocker les dates déjà affichées
+        const displayedDates = {};
+
+        // Parcourez les données triées
         data.forEach(item => {
+            const releaseDate = document.createElement('p');
+            const currentDate = new Date();
+            const releaseDateFormatted = new Date(item.release_date);
+
+            // Formatez la date de sortie au format "dd/mm"
+            const formattedDate = releaseDateFormatted.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+            });
+
+            // Vérifiez si la date de sortie a déjà été affichée
+            if (!displayedDates[formattedDate]) {
+                // Affichez la date de sortie
+                const differenceInMilliseconds = currentDate - releaseDateFormatted;
+                const differenceInDays = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+
+                if (differenceInDays === 0) {
+                    releaseDate.textContent = formattedDate + ", today";
+                } else {
+                    releaseDate.textContent = formattedDate + ", " + differenceInDays + "d ago";
+                }
+                releaseDate.className = 'ReleaseDate';
+                container.appendChild(releaseDate);
+
+                // Marquez la date de sortie comme déjà affichée
+                displayedDates[formattedDate] = true;
+            }
             let IsAlbum = false;
             const album = document.createElement('p');
             const newItem = document.createElement('div');
@@ -22,14 +59,51 @@ fetch('/get-new-releases')
 
             const track = document.createElement('p');
             track.textContent = ` ${item.track}`;
-            if( track.textContent.length > 26){
-                const count = track.textContent.length - 26;
-                const res = (count * 5) + 105;
-                track.textContent += "‎ ‎ ‎ ‎ ‎ ‎ ‎" +  `${item.track}`;
-                //track.id = "animated";
 
-                track.classList.add("animate-track");
+            if( track.textContent.length > 26) {
+                let t = 0;
+                setInterval(() => {
+                    let res = -0//-((count * 5) + (count * 13));
+                    requestAnimationFrame(() => {
+                        // Obtenez la largeur de l'élément track en pixels
+                        const trackWidth = track.offsetWidth; // ou track.clientWidth
+                        const trackWidthInt = parseInt(trackWidth, 10);
+
+                        if (t=== 0){
+                            t = trackWidthInt
+                        }
+
+                        if (t!=0){
+                            console.log('Largeur de track en int :', t);
+                        } else{
+                            console.log('Largeur de track en int :', trackWidthInt);
+                        }
+
+                        if (t!=0){
+                            res = -((t / 2) + 14)
+                        } else{
+                            res = -((trackWidthInt / 2) + 14)
+                        }
+                    });
+                    track.textContent += "‎ ‎ ‎ ‎ ‎ ‎ ‎" + `${item.track}`;
+
+                    track.classList.add('track-animation');
+
+                    track.style.transform = 'translateX(0)';
+
+                    requestAnimationFrame(() => {
+
+                        track.style.transform = `translateX(${res}px)`;
+
+                        track.addEventListener('animationend', () => {
+                            track.classList.remove('track-animation');
+                        }, {once: true});
+                    });
+                }, 2000);
+
             }
+
+
 
             if (item.album_name) {
                 album.textContent = ` ${item.album_name}`;
@@ -39,8 +113,7 @@ fetch('/get-new-releases')
                 IsAlbum = true;
             }
 
-            const releaseDate = document.createElement('p');
-            releaseDate.textContent = `Release Date: ${item.release_date}`;
+            releaseDate.className = "ReleaseDate"
 
             const coverImage = document.createElement('img');
             coverImage.src = item.cover_url;
@@ -50,13 +123,14 @@ fetch('/get-new-releases')
             coverImage.style.borderRadius = '10px';
             coverImage.style.boxShadow = '8px 8px 8px 0px rgba(0,0,0,0.5)';
 
+            container.appendChild(releaseDate);
             CoverDiv.appendChild(coverImage);
             TrackInfoDiv.appendChild(track);
             TrackInfoDiv.appendChild(album);
             TrackInfoDiv.appendChild(artist);
             newItem.appendChild(CoverDiv);
             newItem.appendChild(TrackInfoDiv);
-            //newItem.appendChild(releaseDate);
+
 
             container.appendChild(newItem);
         });

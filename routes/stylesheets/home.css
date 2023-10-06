@@ -29,15 +29,22 @@ body {
 #new-releases-container{
     display: flex;
     flex-direction: column;
-    gap: 2vh;
+    gap: 1.5vh;
     align-items: center;
+
+    .ReleaseDate{
+        color: #5A9EDD;
+        font-family: "Gotham Bold", sans-serif;
+        width: 85%;
+        text-align: start;
+    }
 }
 
 .release-item{
     background-color: #272525;
     color: #ffffff;
     width: 90vw;
-    height: 9vh;
+    height: 12vh;
     display: flex;
     border-radius: 20px;
     justify-content: center;
@@ -63,10 +70,83 @@ body {
     margin-right: 5%;
 }
 
+header {
+    height: 26vh;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    flex-direction: column;
+}
 
-#track.animate-track {
-    animation-timing-function: linear;
-    display: inline-block;
-    transition: margin-left 1s ease; /* Spécifiez la durée et l'effet de transition souhaités */
-    margin-left: 0%;
+.CalendarSVGBox{
+    width: 100vw;
+    height: 16vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.CalendarSVGBox svg{
+    display: flex;
+}
+
+.LastReleaseText{
+    height: 10vh;
+    width: 100vw;
+    color: #5A9EDD;
+    font-family: "Gotham Bold", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    .text {
+        width: 80%;
+        height: 65%;
+        border-bottom: #5A9EDD 2px solid;
+    }
+
+}
+
+.LastReleaseText h1{
+    display: flex;
+    justify-content: center;
+}
+
+.bar{
+    width: 75vw;
+    height: 1px;
+    background: #5A9EDD;
+    margin: auto;
+}
+
+.main{
+    width: 100vw;
+    height: 66vh;
+}
+
+.TrackInfoDiv {
+    overflow: hidden;
+}
+
+.TrackInfoDiv p{
+    width: fit-content;
+}
+
+.track-animation {
+    animation-name: moveLeft;
+    animation-duration: 6.5s;
+    animation-timing-function: ease;
+    white-space: nowrap; /* Empêche le texte de passer à la ligne */
+}
+
+@keyframes moveLeft {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        /* La valeur de "margin-left" est définie dans JavaScript */
+    }
 }
