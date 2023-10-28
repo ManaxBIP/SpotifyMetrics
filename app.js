@@ -143,8 +143,73 @@ app.get('/get-new-releases', async (req, res) => {
 });
 
 
+app.get('/listening-time-:artist', async (req, res) => {
+  const accessToken = accessT;
+  const artistName = req.params.artist.replace(/_/g, ' ');
+  const baseHistoryUrl = `https://api.spotify.com/v1/me/player/recently-played?limit=50`; // Remplacez par l'URL de l'historique d'écoute de Spotify
+  let totalListeningTime = 0;
 
+  try {
+    let nextUrl = baseHistoryUrl;
 
+    while (nextUrl) {
+      const response = await fetch(nextUrl, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.items.length > 0) {
+        data.items.forEach(item => {
+          if (item.track.artists.some(artist => artist.name === artistName)) {
+            totalListeningTime += item.track.duration_ms;
+          }
+        });
+      }
+
+      nextUrl = data.next;
+    }
+
+    // Convertissez la durée en jours, heures et minutes et renvoyez le résultat.
+    const totalListeningTimeInSeconds = totalListeningTime / 1000;
+    const days = Math.floor(totalListeningTimeInSeconds / (60 * 60 * 24));
+    const hours = Math.floor((totalListeningTimeInSeconds % (60 * 60 * 24)) / 3600);
+    const minutes = Math.floor((totalListeningTimeInSeconds % 3600) / 60);
+
+    const result = `Vous avez écouté ${artistName} pendant ${days} days, ${hours} hours, ${minutes} minutes.`;
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    const result = `Erreur lors de la récupération de l'historique d'écoute pour ${artistName}.`;
+    res.send(result);
+  }
+
+  // Démarrez le processus en appelant la fonction avec l'URL de base.
+  // Obtenez l'artiste en fonction de son nom.
+  fetch(`https://api.spotify.com/v1/search?q=${artistName}&type=artist`, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+    },
+  })
+      .then(response => response.json())
+      .then(data => {
+        if (data.artists && data.artists.items.length > 0) {
+          const artistId = data.artists.items[0].id; // Obtenez l'ID du premier artiste trouvé
+          console.log(artistId)
+          fetchFullListeningHistory(baseHistoryUrl, artistId);
+        } else {
+          const result = `Artiste "${artistName}" introuvable.`;
+          res.send(result);
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        const result = `Erreur lors de la recherche de l'artiste "${artistName}".`;
+        res.send(result);
+      });
+});
 
 
 app.get('/callback', async (req, res) => {
