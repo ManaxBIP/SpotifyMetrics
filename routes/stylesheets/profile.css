@@ -1,0 +1,166 @@
+@font-face {
+    font-family: "Gotham Bold";
+    src: url("/src/fonts/Gotham-Bold.otf");
+}
+
+@font-face {
+    font-family: "Gotham Light";
+    src: url("/src/fonts/Gotham-Light.otf");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html{
+    height: 100%;
+    overflow: hidden;
+    background-image: url("/src/img/background.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: "Gotham Bold", sans-serif;
+}
+body {
+    height: 100%;
+    min-height: 100%;
+}
+
+header {
+    width: 100%;
+    height: 34%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 5%;
+
+    .header__profile {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 1rem;
+
+        .profilePicture__profile {
+            width: 30%;
+            border-radius: 50%;
+        }
+
+        .titleBlue__profile {
+            color: #5A9EDD;
+            font-size: 33px;
+        }
+
+        .playlistSub__profile {
+            font-family: "Gotham Light", sans-serif;
+            font-size: 19px
+        }
+
+        .publicPlaylist, .subs {
+            color: #5A9EDD;
+        }
+    }
+}
+
+main {
+    width: 100%;
+    height: 16%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .listening__profile {
+        width: 70%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-top: #5A9EDD 2px solid;
+        border-bottom: #5A9EDD 2px solid;
+        gap: 1rem;
+
+        .totalListenText__profile {
+            color: white;
+            font-size: 19px;
+        }
+
+        .totalListenNum__profile {
+            color: #5A9EDD;
+        }
+    }
+}
+
+footer {
+    width: 100%;
+    height: 34%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 5%;
+    margin-bottom: 5%;
+
+    .favArtist__profile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+
+        .favArtistTitle__profile {
+            color: white;
+            font-size: 19px;
+        }
+
+        .artistImg__profile {
+            width: 30%;
+        }
+
+        .favArtistName__profile {
+            color: white;
+        }
+
+        .favArtist__profile {
+            color: white;
+        }
+
+        .favArtistTime__profile {
+            color: #5A9EDD;
+            font-size: 20px;
+        }
+    }
+}
+
+nav {
+    width: 100%;
+    height: 7vh;
+    display: flex;
+    background-color: transparent;
+    justify-content: center;
+    align-items: center;
+    padding: 0 5vw;
+    position: fixed;
+    bottom: 0;
+    z-index: 1;
+}
+
+nav img {
+    width: 3.7vh;
+    border-radius: 50%;
+}
+
+ul {
+    width: 70%;
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}

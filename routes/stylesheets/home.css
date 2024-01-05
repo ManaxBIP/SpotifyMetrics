@@ -1,0 +1,159 @@
+@font-face {
+    font-family: "Gotham Bold";
+    src: url("/src/fonts/Gotham-Bold.otf");
+}
+
+@font-face {
+    font-family: "Gotham Light";
+    src: url("/src/fonts/Gotham-Light.otf");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html{
+    height: 100%;
+    overflow: hidden;
+    font-family: "Gotham Bold", sans-serif;
+}
+body {
+    height: 100%;
+    min-height: 100%;
+    background-image: url("/src/img/background.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+header {
+    width: 100%;
+    height: 30%;
+    display: flex;
+    flex-direction: column;
+
+    .header__home {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        color: white;
+        gap: 1rem;
+
+        .logo__home {
+            width: 25%;
+        }
+
+        .selectAlbumTracks__home {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 67%;
+
+            .Artists, .Tracks {
+                font-size: 36px;
+                color: #5A9EDD;
+                opacity: 50%;
+                transition: opacity 0.3s ease-in-out;
+            }
+
+            .selected {
+                color: #5A9EDD;
+                opacity: 1;
+                transition: opacity 0.3s ease-in-out;
+            }
+        }
+
+        .animBar__home {
+            width: 67%;
+            height: 0.2rem;
+            background-color: #365878;
+
+            .filledBar__home {
+                width: 47%;
+                height: 100%;
+                background: #5A9EDD;
+                opacity: 100%;
+                transition: transform 0.3s ease;
+            }
+        }
+    }
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 63%;
+    .buttons__Home {
+        width: 67%;
+        height: 10%;
+        background-color: #365878;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+        margin: 3vh;
+        border-radius: 20px;
+        z-index: 9;
+        position: relative;
+
+        .divBackground__home {
+            display: flex;
+            z-index: 10;
+            width: 33.3%;
+            height: 100%;
+            border-radius: 20px;
+            position: absolute;
+            background-color: #5A9EDD;
+            left: 0;
+            transition: transform 0.3s ease;
+        }
+
+    }
+
+    .buttons__Home button {
+        width: 33.3%;
+        height: 100%;
+        z-index: 11;
+        padding: 2%;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        border: none;
+        background-color: transparent;
+        border-radius: 15px;
+        font-family: "Gotham Bold", sans-serif;
+    }
+}
+
+nav {
+    width: 100%;
+    height: 7vh;
+    display: flex;
+    background-color: transparent;
+    justify-content: center;
+    align-items: center;
+    padding: 0 5vw;
+    position: fixed;
+    bottom: 0;
+    z-index: 1;
+}
+
+nav img {
+    width: 3.7vh;
+    border-radius: 50%;
+}
+
+ul {
+    width: 70%;
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
