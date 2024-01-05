@@ -73,11 +73,11 @@ fetch('/get-new-releases')
                             t = trackWidthInt
                         }
 
-                        if (t!=0){
+                        /*if (t!=0){
                             console.log('Largeur de track en int :', t);
                         } else{
                             console.log('Largeur de track en int :', trackWidthInt);
-                        }
+                        }*/
 
                         if (t!=0){
                             res = -((t / 2) + 14)

@@ -143,7 +143,7 @@ app.get('/get-new-releases', async (req, res) => {
 });
 
 
-app.get('/listening-time-:artist', async (req, res) => {
+/*app.get('/listening-time-:artist', async (req, res) => {
   const accessToken = accessT;
   const artistName = req.params.artist.replace(/_/g, ' ');
   const baseHistoryUrl = `https://api.spotify.com/v1/me/player/recently-played?limit=50`; // Remplacez par l'URL de l'historique d'écoute de Spotify
@@ -209,7 +209,101 @@ app.get('/listening-time-:artist', async (req, res) => {
         const result = `Erreur lors de la recherche de l'artiste "${artistName}".`;
         res.send(result);
       });
+});*/
+
+/*app.get('/listening-time-:artist', async (req, res) => {
+  const accessToken = accessT;
+  const artistName = req.params.artist.replace(/_/g, ' ');
+  const baseHistoryUrl = `https://api.spotify.com/v1/me/player/recently-played?limit=50`; // Remplacez par l'URL de l'historique d'écoute de Spotify
+  let totalListeningTime = 0;
+
+  try {
+    let nextUrl = baseHistoryUrl;
+
+    while (nextUrl) {
+      const response = await fetch(nextUrl, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.items.length > 0) {
+        data.items.forEach(item => {
+          if (item.track.artists.some(artist => artist.name === artistName)) {
+            totalListeningTime += item.track.duration_ms;
+          }
+        });
+      }
+
+      nextUrl = data.next;
+    }
+
+    // Convertissez la durée en jours, heures et minutes et renvoyez le résultat.
+    const totalListeningTimeInSeconds = totalListeningTime / 1000;
+    const days = Math.floor(totalListeningTimeInSeconds / (60 * 60 * 24));
+    const hours = Math.floor((totalListeningTimeInSeconds % (60 * 60 * 24)) / 3600);
+    const minutes = Math.floor((totalListeningTimeInSeconds % 3600) / 60);
+
+    const result = `Vous avez écouté ${artistName} pendant ${days} days, ${hours} hours, ${minutes} minutes.`;
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    const result = `Erreur lors de la récupération de l'historique d'écoute pour ${artistName}.`;
+    res.send(result);
+  }
+});*/
+
+app.get('/listening-time/:artistId', async (req, res) => {
+  try {
+    const artistId = req.params.artistId;
+    const accessToken = accessT;
+
+    // Nombre de résultats à récupérer par page
+    const limit = 50;
+
+    // Début de la pagination
+    let offset = 0;
+    let totalMinutes = 0;
+
+    // Définir une limite de boucle pour éviter une boucle infinie
+    const maxIterations = 50; // Choisissez un nombre approprié selon vos besoins
+
+    for (let i = 0; i < maxIterations; i++) {
+      const recentlyPlayedEndpoint = `https://api.spotify.com/v1/me/player/recently-played?limit=${limit}&offset=${offset}`;
+
+      const recentlyPlayedResponse = await axios.get(recentlyPlayedEndpoint, {
+        headers: {
+          'Authorization': 'Bearer ' + accessToken
+        },
+      });
+
+      const artistTracks = recentlyPlayedResponse.data.items.filter(item =>
+        item.track.artists.some(artist => artist.name === artistId)
+      );
+
+      const totalTime = artistTracks.reduce((total, item) => total + item.track.duration_ms, 0);
+      totalMinutes += Math.round(totalTime / 60000);
+
+      // Si le nombre d'éléments retournés est inférieur à la limite, nous avons atteint la fin de l'historique
+      if (recentlyPlayedResponse.data.items.length < limit) {
+        break;
+      }
+
+      // Mettre à jour l'offset pour la prochaine itération
+      offset += limit;
+    }
+
+    
+    res.json({ artistId, totalMinutes });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Une erreur s\'est produite lors de la récupération de l\'historique d\'écoute.' });
+  }
 });
+
+
 
 
 app.get('/callback', async (req, res) => {
