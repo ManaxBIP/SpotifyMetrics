@@ -16,7 +16,6 @@ const redirectUri = 'http://127.0.0.1:3000/callback';
 let accessT = "";
 let NewReleases = [];
 
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -147,7 +146,88 @@ app.get('/get-new-releases', async (req, res) => {
   }
 });
 
+app.get('/get-top-artist', async (req, res) => {
+  try {
+    const userTopArtistsResponse = await axios.get(
+        'https://api.spotify.com/v1/me/top/artists?time_range=long_term',
+        {
+          headers: {
+            Authorization: `Bearer ${accessT}`,
+          },
+          params: {
+            limit: 50,
+          },
+        }
+    );
 
+    const topArtists = userTopArtistsResponse.data.items;
+    res.json(topArtists);
+
+    } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Une erreur s\'est produite.' });
+  }
+});
+
+app.get('/get-top-artist-listening-time', async (req, res) => {
+    try {
+        const artistName = 'Travis Scott'; // Remplacez par le nom de votre artiste top 1
+
+        // Obtenez l'historique d'écoute de l'utilisateur (dans son intégralité)
+        const userListeningHistoryResponse = await axios.get(
+            'https://api.spotify.com/v1/me/player/recently-played',
+            {
+                headers: {
+                    Authorization: `Bearer ${accessT}`,
+                },
+                params: {
+                    limit: 50, // Vous pouvez ajuster la limite en fonction de vos besoins
+                },
+            }
+        );
+
+        const listeningHistory = userListeningHistoryResponse.data.items;
+
+        if (listeningHistory.length > 0) {
+            // Calcul de la date de début (il y a environ 2 mois)
+            const endDate = new Date();
+            const startDate = new Date(endDate);
+            startDate.setMonth(startDate.getMonth() - 2);
+
+            // Filtrer l'historique pour les chansons dans la plage des 2 derniers mois
+            const filteredHistory = listeningHistory.filter(item => {
+                const playedAt = new Date(item.played_at);
+                return playedAt >= startDate && playedAt <= endDate;
+            });
+
+            // Filtrer l'historique pour les chansons de l'artiste
+            const artistListeningHistory = filteredHistory.filter(item => {
+                return item.track.artists.some(artist => artist.name === artistName);
+            });
+
+            // Calculer le temps d'écoute total pour l'artiste en millisecondes
+            const totalListeningTimeMs = artistListeningHistory.reduce((total, item) => {
+                return total + item.track.duration_ms;
+            }, 0);
+
+            // Convertir en jours, heures, minutes et secondes
+            const totalListeningTimeInSeconds = totalListeningTimeMs / 1000;
+            const days = Math.floor(totalListeningTimeInSeconds / (3600 * 24));
+            const hours = Math.floor((totalListeningTimeInSeconds % (3600 * 24)) / 3600);
+            const minutes = Math.floor((totalListeningTimeInSeconds % 3600) / 60);
+            const seconds = Math.floor(totalListeningTimeInSeconds % 60);
+
+            const formattedTime = `${days} jour(s), ${hours} heure(s), ${minutes} minute(s) et ${seconds} seconde(s)`;
+
+            res.json({ artist: artistName, totalListeningTime: formattedTime });
+        } else {
+            res.status(404).json({ error: 'Aucun élément trouvé dans l\'historique d\'écoute.' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Une erreur s\'est produite.' });
+    }
+});
 
 
 

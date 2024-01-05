@@ -126,6 +126,7 @@ main {
         border: none;
         background-color: transparent;
         border-radius: 15px;
+        font-family: "Gotham Bold", sans-serif;
     }
 }
 
