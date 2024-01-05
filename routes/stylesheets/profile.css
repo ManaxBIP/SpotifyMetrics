@@ -120,6 +120,7 @@ footer {
 
         .artistImg__profile {
             width: 30%;
+            border-radius: 50%;
         }
 
         .favArtistName__profile {

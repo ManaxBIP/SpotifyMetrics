@@ -52,6 +52,49 @@ const CACHE_DURATION = 3600 * 1000; // Cache pendant 1 heure (en millisecondes)
 let cachedReleases = null;
 let lastFetchTime = 0;
 
+//retreive user info
+
+app.get('/get-user-info', async (req, res) => {
+  try {
+    const userResponse = await axios.get('https://api.spotify.com/v1/me', {
+      headers: {
+        Authorization: `Bearer ${accessT}`,
+      },
+    });
+
+    const userData = userResponse.data;
+    res.json(userData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Une erreur s\'est produite lors de la récupération des informations utilisateur.' });
+  }
+});
+
+app.get('/get-user-playlists', async (req, res) => {
+  try {
+    const playlistResponse = await axios.get('https://api.spotify.com/v1/me/playlists', {
+      headers: {
+        'Authorization': `Bearer ${accessT}`,
+      },
+    });
+
+    const playlistData = playlistResponse.data;
+
+    // Filtrer les playlists publiques
+    const publicPlaylists = playlistData.items.filter(playlist => playlist.public);
+
+    const totalPublicPlaylists = publicPlaylists.length;
+
+    console.log(`L'utilisateur a ${totalPublicPlaylists} playlists publiques.`);
+
+    res.json({ totalPublicPlaylists });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Une erreur s\'est produite lors de la récupération des playlists.' });
+  }
+});
+
+
 
 app.get('/get-new-releases', async (req, res) => {
   try {
