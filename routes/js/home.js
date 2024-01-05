@@ -1,64 +1,47 @@
-fetch('/get-new-releases')
-    .then(response => response.json())
-    .then(data => {
-        const container = document.getElementById('new-releases-container');
+document.addEventListener('DOMContentLoaded', () => {
 
-        // Parcourez les données et créez des éléments pour chaque nouvelle sortie
-        data.forEach(item => {
-            let IsAlbum = false;
-            const album = document.createElement('p');
-            const newItem = document.createElement('div');
-            newItem.className = 'release-item';
+    const filledBar = document.querySelector('.filledBar__home');
+    const Tracks = document.querySelector('.Tracks');
+    const Artists = document.querySelector('.Artists');
 
-            const CoverDiv = document.createElement('div');
-            CoverDiv.className = 'CoverDiv';
+    Tracks.addEventListener('click', () => {
+        filledBar.style.transform = "translateX(0%)";
+        Tracks.classList.add('selected');
+        Tracks.style.animation = "colorFade 1s ease-in-out fowards"
+        Artists.classList.remove('selected');
+    });
 
-            const TrackInfoDiv = document.createElement('div');
-            TrackInfoDiv.className = 'TrackInfoDiv';
+    Artists.addEventListener('click', () => {
+        filledBar.style.transform = "translateX(113%)";
+        Tracks.classList.remove('selected');
+        Artists.classList.add('selected');
+    });
 
-            const artist = document.createElement('p');
-            artist.textContent = `${item.artist}`;
-            artist.style.fontFamily = "'Gotham Light', sans-serif";
 
-            const track = document.createElement('p');
-            track.textContent = ` ${item.track}`;
-            if( track.textContent.length > 26){
-                const count = track.textContent.length - 26;
-                const res = (count * 5) + 105;
-                track.textContent += "‎ ‎ ‎ ‎ ‎ ‎ ‎" +  `${item.track}`;
-                //track.id = "animated";
+    const oneMonth = document.querySelector('.oneMonth');
+    const sixMonth = document.querySelector('.sixMonths');
+    const lifetime = document.querySelector('.lifetime');
+    const background = document.querySelector('.divBackground__home');
 
-                track.classList.add("animate-track");
-            }
+    oneMonth.addEventListener('click', () => {
+        oneMonth.classList.add('active');
+        sixMonth.classList.remove('active');
+        lifetime.classList.remove('active');
+        background.style.transform = "translateX(0%)";
+        console.log("zob dans le cul")
+    });
 
-            if (item.album_name) {
-                album.textContent = ` ${item.album_name}`;
-                if( album.textContent.length > 26){
-                    album.id = "animated";
-                }
-                IsAlbum = true;
-            }
+    sixMonth.addEventListener('click', () => {
+        oneMonth.classList.remove('active');
+        sixMonth.classList.add('active');
+        lifetime.classList.remove('active');
+        background.style.transform = "translateX(100%)";
+    });
 
-            const releaseDate = document.createElement('p');
-            releaseDate.textContent = `Release Date: ${item.release_date}`;
-
-            const coverImage = document.createElement('img');
-            coverImage.src = item.cover_url;
-            coverImage.alt = 'Cover';
-            coverImage.style.height = '7vh';
-            coverImage.style.width ='7vh';
-            coverImage.style.borderRadius = '10px';
-            coverImage.style.boxShadow = '8px 8px 8px 0px rgba(0,0,0,0.5)';
-
-            CoverDiv.appendChild(coverImage);
-            TrackInfoDiv.appendChild(track);
-            TrackInfoDiv.appendChild(album);
-            TrackInfoDiv.appendChild(artist);
-            newItem.appendChild(CoverDiv);
-            newItem.appendChild(TrackInfoDiv);
-            //newItem.appendChild(releaseDate);
-
-            container.appendChild(newItem);
-        });
-    })
-    .catch(error => console.error(error));
+    lifetime.addEventListener('click', () => {
+        oneMonth.classList.remove('active');
+        sixMonth.classList.remove('active');
+        lifetime.classList.add('active');
+        background.style.transform = "translateX(200%)";
+    });
+});
